@@ -16,13 +16,12 @@ class User {
       this.company});
   factory User.fromJSON(Map<String, dynamic> parsedJSON) {
     return User(
-      id: parsedJSON['id'],
-      name: parsedJSON['name'],
-      email: parsedJSON['email'],
-      phone: parsedJSON['phone'],
-      website: parsedJSON['website'],
-      address: parsedJSON['address'],
-      company: parsedJSON['company'],
-    );
+        id: parsedJSON['id'],
+        name: parsedJSON['name'],
+        email: parsedJSON['email'],
+        phone: parsedJSON['phone'],
+        website: parsedJSON['website'],
+        address: Address.fromJSON(parsedJSON['address']),
+        company: Company.fromJSON(parsedJSON['company']));
   }
 }

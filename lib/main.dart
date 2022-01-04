@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:dio_apieg/Address.dart';
 import 'package:flutter/material.dart';
 
 import 'User.dart';
@@ -15,24 +16,32 @@ void main() {
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
+  // const MyHomePage({Key? key}) : super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var getUsersData, listUsers;
+  var getUsersData;
+  var listUsers;
 
-  Future<List<User>> fetchUsers() async {
+  List<String> data = [];
+
+  fetchUsers() async {
     try {
       Response response =
           await Dio().get('https://jsonplaceholder.typicode.com/users');
       if (response.statusCode == 200) {
-        var getUsersData = response.data as List;
-        var listUsers = getUsersData.map((i) => User.fromJSON(i)).toList();
+        getUsersData = response.data as List;
+
+        /*getUsersData.forEach((el) {
+          List<Address> sublist =
+              el["address"].map((val) => User.fromJSON(val)).toList();
+          //data.add(User(sublist));
+        }); */
+        listUsers = getUsersData.map((i) => User.fromJSON(i)).toList();
+        print(listUsers);
         return listUsers;
       } else {
         throw Exception('Failed to load users');
@@ -45,7 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    listUsers = fetchUsers();
+    fetchUsers();
   }
 
   @override
@@ -53,13 +62,13 @@ class _MyHomePageState extends State<MyHomePage> {
     return MaterialApp(
       title: 'Api Example',
       home: Scaffold(
-        body: FutureBuilder<List<User>>(
-          future: listUsers,
+        body: FutureBuilder(
+          future: fetchUsers(),
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return ListView.separated(
                   itemBuilder: (context, index) {
-                    var user = (snapshot.data as List<User>)[index];
+                    var user = (snapshot.data as List)[index];
                     return Container(
                       padding: EdgeInsets.all(10),
                       child: Column(
@@ -79,6 +88,10 @@ class _MyHomePageState extends State<MyHomePage> {
                               ' ' +
                               user.address.zipcode),
                           SizedBox(height: 5),
+                          Text(user.address.geo.lat +
+                              ' ' +
+                              user.address.geo.lng),
+                          SizedBox(height: 5),
                           Text(user.phone),
                           SizedBox(height: 5),
                           Text(user.website),
@@ -93,13 +106,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   separatorBuilder: (context, index) {
                     return Divider();
                   },
-                  itemCount: (snapshot.data as List<User>).length);
+                  itemCount: (snapshot.data as List).length);
             } else if (snapshot.hasError) {
               return Center(child: Text('${snapshot.error}'));
             }
             return Center(
-              child:
-                  CircularProgressIndicator(backgroundColor: Colors.cyanAccent),
+              child: const CircularProgressIndicator(
+                  backgroundColor: Colors.cyanAccent),
             );
           },
         ),
